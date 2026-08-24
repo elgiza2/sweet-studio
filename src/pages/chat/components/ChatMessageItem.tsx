@@ -136,9 +136,20 @@ const ChatMessageItemImpl = ({
   const isLast = i === lastMessageIdx;
   const isLastAssistant = isLast && msg.role === "assistant";
   const isStreamingThis = isLoading && isLastAssistant;
+  // While media is generating we show a single skeleton tile — the thinking
+  // bubble is suppressed so the user never sees two stacked loading boxes.
+  const showMediaSkeleton =
+    msg.role === "assistant" &&
+    isStreamingThis &&
+    !msg.content &&
+    (msg.mode === "images" || msg.mode === "video" || msg.mode === "music") &&
+    !(msg.images && msg.images.length > 0) &&
+    !(msg.videos && msg.videos.length > 0) &&
+    !(msg.audios && msg.audios.length > 0) &&
+    !msg.videoJobId;
   const content = (
     <>
-      {msg.role === "assistant" && msg.computerTaskId ? (
+      {showMediaSkeleton ? null : msg.role === "assistant" && msg.computerTaskId ? (
         <Suspense fallback={null}>
           <ComputerTaskCardLazy taskId={msg.computerTaskId} />
         </Suspense>
@@ -321,19 +332,13 @@ const ChatMessageItemImpl = ({
           <VideoJobProgress jobId={msg.videoJobId} className="mb-2" />
         </div>
       )}
-      {msg.role === "assistant" &&
-        isStreamingThis &&
-        (msg.mode === "images" || msg.mode === "video" || msg.mode === "music") &&
-        !(msg.images && msg.images.length > 0) &&
-        !(msg.videos && msg.videos.length > 0) &&
-        !(msg.audios && msg.audios.length > 0) &&
-        !msg.videoJobId && (
-          <div className="px-3 md:px-12">
-            <MediaGenerationSkeleton
-              kind={msg.mode === "video" ? "video" : msg.mode === "music" ? "music" : "images"}
-            />
-          </div>
-        )}
+      {showMediaSkeleton && (
+        <div className="px-3 md:px-12">
+          <MediaGenerationSkeleton
+            kind={msg.mode === "video" ? "video" : msg.mode === "music" ? "music" : "images"}
+          />
+        </div>
+      )}
       {msg.role === "assistant" && (msg.slidesOutline || msg.slidesPlan) && (
         <div className="px-3 md:px-12">
           <Suspense fallback={null}>
