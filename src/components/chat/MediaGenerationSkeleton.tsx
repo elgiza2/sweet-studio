@@ -52,7 +52,8 @@ export function MediaGenerationSkeleton({
   const meta = KIND_META[kind];
   if (!meta) return null;
 
-  const tileCount = Math.max(1, Math.min(count ?? (kind === "images" ? 2 : 1), 6));
+  // Always a single clean loading tile — the finished media renders in its place.
+  const tileCount = 1;
   const Icon = meta.icon;
 
   return (
