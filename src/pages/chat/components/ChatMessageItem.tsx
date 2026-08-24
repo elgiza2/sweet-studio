@@ -332,19 +332,13 @@ const ChatMessageItemImpl = ({
           <VideoJobProgress jobId={msg.videoJobId} className="mb-2" />
         </div>
       )}
-      {msg.role === "assistant" &&
-        isStreamingThis &&
-        (msg.mode === "images" || msg.mode === "video" || msg.mode === "music") &&
-        !(msg.images && msg.images.length > 0) &&
-        !(msg.videos && msg.videos.length > 0) &&
-        !(msg.audios && msg.audios.length > 0) &&
-        !msg.videoJobId && (
-          <div className="px-3 md:px-12">
-            <MediaGenerationSkeleton
-              kind={msg.mode === "video" ? "video" : msg.mode === "music" ? "music" : "images"}
-            />
-          </div>
-        )}
+      {showMediaSkeleton && (
+        <div className="px-3 md:px-12">
+          <MediaGenerationSkeleton
+            kind={msg.mode === "video" ? "video" : msg.mode === "music" ? "music" : "images"}
+          />
+        </div>
+      )}
       {msg.role === "assistant" && (msg.slidesOutline || msg.slidesPlan) && (
         <div className="px-3 md:px-12">
           <Suspense fallback={null}>
