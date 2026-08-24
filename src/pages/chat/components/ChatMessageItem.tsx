@@ -136,9 +136,20 @@ const ChatMessageItemImpl = ({
   const isLast = i === lastMessageIdx;
   const isLastAssistant = isLast && msg.role === "assistant";
   const isStreamingThis = isLoading && isLastAssistant;
+  // While media is generating we show a single skeleton tile — the thinking
+  // bubble is suppressed so the user never sees two stacked loading boxes.
+  const showMediaSkeleton =
+    msg.role === "assistant" &&
+    isStreamingThis &&
+    !msg.content &&
+    (msg.mode === "images" || msg.mode === "video" || msg.mode === "music") &&
+    !(msg.images && msg.images.length > 0) &&
+    !(msg.videos && msg.videos.length > 0) &&
+    !(msg.audios && msg.audios.length > 0) &&
+    !msg.videoJobId;
   const content = (
     <>
-      {msg.role === "assistant" && msg.computerTaskId ? (
+      {showMediaSkeleton ? null : msg.role === "assistant" && msg.computerTaskId ? (
         <Suspense fallback={null}>
           <ComputerTaskCardLazy taskId={msg.computerTaskId} />
         </Suspense>
